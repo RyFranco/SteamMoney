@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def created_merged_df():
-    main_df = pd.read_csv("../../data/raw/game_data_all.csv")
-    platform_df = pd.read_csv("../../data/raw/games.csv")
+    main_df = pd.read_csv("../../data/raw/initial_games_data.csv")
+    platform_df = pd.read_csv("../../data/raw/platform_game_data.csv")
     main_df = main_df.drop(columns=["Unnamed: 0"]) # Drop unnecessary index column
     main_df = main_df.iloc[:, :4] # Keep only the first 4 columns
     main_df = main_df.drop_duplicates(subset='link', keep='first')
