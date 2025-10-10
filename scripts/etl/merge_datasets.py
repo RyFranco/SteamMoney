@@ -21,5 +21,6 @@ def created_merged_df():
 
 merged_df, main_df, platform_df = created_merged_df()
 
+merged_df
 
 
