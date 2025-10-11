@@ -1,8 +1,7 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+import os
 
-def created_merged_df():
+def create_merged_df_for_platforms():
     main_df = pd.read_csv("../../data/raw/initial_games_data.csv")
     platform_df = pd.read_csv("../../data/raw/platform_game_data.csv")
     main_df = main_df.drop(columns=["Unnamed: 0"]) # Drop unnecessary index column
@@ -14,13 +13,18 @@ def created_merged_df():
     cols = ['app_id'] + [c for c in main_df.columns if c != 'app_id']
     main_df = main_df[cols]
     print(f"Main Dataset: {main_df.shape[0]} Second dataset: {platform_df.shape[0]}")
-    platform_df = platform_df.drop(columns=["rating", "positive_ratio", "price_final", "discount", "steam_deck"])
+    platform_df = platform_df.drop(columns=["rating", "positive_ratio", "price_original", "price_final", "discount", "steam_deck"])
     merged_df = pd.merge(main_df, platform_df, on='app_id')
     merged_df = merged_df.drop(columns=["game", "date_release"])
     return merged_df, main_df, platform_df
 
-merged_df, main_df, platform_df = created_merged_df()
+def save_merged_platform_df(merged_df):
+    interim_path = "../../data/interim/merged_platform_data.pkl"
+    os.makedirs(os.path.dirname(interim_path), exist_ok=True)
+    merged_df.to_pickle(interim_path)
+    print(f"Merged dataset saved to {interim_path}")
+    
+    
+merged_df, main_df, platform_df = create_merged_df_for_platforms()
 
-merged_df
-
-
+save_merged_platform_df(merged_df)
