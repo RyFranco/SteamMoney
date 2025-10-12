@@ -16,15 +16,31 @@ def create_merged_df_for_platforms():
     platform_df = platform_df.drop(columns=["rating", "positive_ratio", "price_original", "price_final", "discount", "steam_deck"])
     merged_df = pd.merge(main_df, platform_df, on='app_id')
     merged_df = merged_df.drop(columns=["game", "date_release"])
-    return merged_df, main_df, platform_df
+    return merged_df
 
-def save_merged_platform_df(merged_df):
-    interim_path = "../../data/interim/merged_platform_data.pkl"
+merged_df = create_merged_df_for_platforms()
+
+def create_merged_df_for_categories_tags_and_genre(merged_df):
+    categories_tags_and_genre_df = pd.read_csv("../../data/raw/games.csv", index_col=False)
+    categories_tags_and_genre_df = categories_tags_and_genre_df[["AppID", "Categories", "Genres", "Tags", "Price"]]
+    categories_tags_and_genre_df = categories_tags_and_genre_df.rename(columns={"AppID": "app_id"})
+    merged_df = pd.merge(
+        merged_df,
+        categories_tags_and_genre_df,
+        on="app_id",
+        how="inner" 
+    )
+    return merged_df
+    
+merged_df = create_merged_df_for_categories_tags_and_genre(merged_df)
+
+def save_merged_df(merged_df):
+    interim_path = "../../data/interim/merged_data.pkl"
     os.makedirs(os.path.dirname(interim_path), exist_ok=True)
     merged_df.to_pickle(interim_path)
     print(f"Merged dataset saved to {interim_path}")
-    
-    
-merged_df, main_df, platform_df = create_merged_df_for_platforms()
 
-save_merged_platform_df(merged_df)
+
+save_merged_df(merged_df)
+
+merged_df
