@@ -34,6 +34,7 @@ def create_merged_df_for_categories_tags_and_genre(merged_df):
     
 merged_df = create_merged_df_for_categories_tags_and_genre(merged_df)
 
+# Save the merged dataframe to a pickle file because pickle is more efficient for storing dataframes
 def save_merged_df(merged_df):
     interim_path = "../../data/interim/merged_data.pkl"
     os.makedirs(os.path.dirname(interim_path), exist_ok=True)
@@ -42,5 +43,3 @@ def save_merged_df(merged_df):
 
 
 save_merged_df(merged_df)
-
-merged_df
