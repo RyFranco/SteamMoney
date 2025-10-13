@@ -20,14 +20,19 @@ def estimate_copies_sold(row):
     return reviews * multiple
 
 def log_normalized_revenue_histogram(paid_df):
+    # Create the log-transformed revenue with log1p to handle zero values safely 
+    # because log(0) is undefined if there are any zero revenues
     paid_df["log_estimated_revenue"] = np.log1p(paid_df["estimated_revenue"])
     plt.figure(figsize=(12, 5))
     plt.subplot(1, 2, 1)
+    # First plot with raw estimated revenue to show the wide range
     plt.hist(paid_df["estimated_revenue"], bins=50, edgecolor='black')
     plt.title("Estimated Revenue (Raw Scale)")
     plt.xlabel("Revenue ($)")
     plt.ylabel("Count")
     plt.xscale("log")
+    
+    # Second plot with log-normalized revenue to show distribution better
     plt.subplot(1, 2, 2)
     plt.hist(paid_df["log_estimated_revenue"], bins=50, edgecolor='black', color='orange')
     plt.title("Estimated Revenue (Log-Normalized)")
@@ -37,6 +42,7 @@ def log_normalized_revenue_histogram(paid_df):
     plt.show()
 
 def scatter_reviews_vs_revenue(paid_df):
+    # Scatter plot of user reviews vs estimated revenue
     plt.figure(figsize=(10, 6))
     plt.scatter(paid_df["user_reviews"], paid_df["estimated_revenue"], alpha=0.6, color='orange', edgecolor='k')
     plt.title("Game-Level Estimated Revenue vs User Reviews (Paid Games)")
@@ -48,13 +54,23 @@ def scatter_reviews_vs_revenue(paid_df):
     plt.show()
 
 def smoothed_trend_line(paid_df):
+    # Create bins for user reviews on a logarithmic scale
+    # Logarthmic bins are divided into 30 intervals where the min and max are determined by the data
     bins = np.logspace(np.log10(paid_df["user_reviews"].min()+1),
             np.log10(paid_df["user_reviews"].max()), 30)
+    
+    # Review_bin column categorizes user reviews into these logarithmic bins
+    # pd.cut assigns each review count to a bin
     paid_df["review_bin"] = pd.cut(paid_df["user_reviews"], bins=bins)
+    
+    # Trend DataFrame calculates the mean estimated revenue for each review bin
+    # observed=True ensures only bins with data are included
     trend = paid_df.groupby("review_bin", observed=True)["estimated_revenue"].mean().reset_index()
     trend["midpoint"] = [interval.mid for interval in trend["review_bin"]]
     plt.figure(figsize=(10,6))
+    # Plots the raw data points in light gray for context
     plt.scatter(paid_df["user_reviews"], paid_df["estimated_revenue"], alpha=0.3, color='lightgray', s=10)
+    # Trend line in steelblue for visibility
     plt.plot(trend["midpoint"], trend["estimated_revenue"], color='steelblue', linewidth=3)
     plt.xscale("log")
     plt.yscale("log")
