@@ -41,6 +41,19 @@ def create_merged_df_for_categories_tags_and_genre(merged_df):
     
 merged_df = create_merged_df_for_categories_tags_and_genre(merged_df)
 
+def create_merged_df_for_sentiment(merged_df):
+    df_sentiment = pd.read_pickle(".../../../../data/processed/app_level_sentiment.pkl")
+    merged_df = merged_df.merge(
+        df_sentiment[["app_id", "avg_sentiment"]],
+        on="app_id",
+        how="left" 
+    )
+    # Create a binary column indicating presence of sentiment data
+    merged_df['has_sentiment'] = merged_df['avg_sentiment'].notna().astype(int)
+    return merged_df
+
+merged_df = create_merged_df_for_sentiment(merged_df)
+
 # Save the merged dataframe to a pickle file because pickle is more efficient for storing dataframes
 def save_merged_df(merged_df):
     interim_path = "../../data/interim/merged_data.pkl"
