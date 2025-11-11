@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import os
 
@@ -41,6 +42,33 @@ def create_merged_df_for_categories_tags_and_genre(merged_df):
     
 merged_df = create_merged_df_for_categories_tags_and_genre(merged_df)
 
+def estimate_copies_sold(row):
+    year = row["release_year"]
+    reviews = row["user_reviews"]
+
+    if year < 2014:
+        multiple = 60
+    elif 2014 <= year <= 2016:
+        multiple = 50
+    elif year == 2017:
+        multiple = 40
+    elif 2018 <= year <= 2019:
+        multiple = 35
+    else:  # 2019 and later
+        multiple = 30
+
+    return reviews * multiple
+
+def copies_sold_proxy(merged_df):
+    merged_df["release_year"] = pd.to_datetime(merged_df["release"]).dt.year
+    merged_df["copies_sold_reviews_proxy"] = merged_df.apply(estimate_copies_sold, axis=1)
+    merged_df["estimated_revenue"] = merged_df["Price"] * merged_df["copies_sold_reviews_proxy"]
+    merged_df["log_estimated_revenue"] = np.log1p(merged_df["estimated_revenue"])
+    merged_df["f2p_flag"] = merged_df["Price"] == 0
+    return merged_df
+    
+merged_df = copies_sold_proxy(merged_df)
+
 def create_merged_df_for_sentiment(merged_df):
     df_sentiment = pd.read_pickle(".../../../../data/processed/app_level_sentiment.pkl")
     merged_df = merged_df.merge(
@@ -53,6 +81,8 @@ def create_merged_df_for_sentiment(merged_df):
     return merged_df
 
 merged_df = create_merged_df_for_sentiment(merged_df)
+
+
 
 # Save the merged dataframe to a pickle file because pickle is more efficient for storing dataframes
 def save_merged_df(merged_df):
