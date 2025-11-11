@@ -12,9 +12,11 @@ steam_analysis_env/
 .ipynb_checkpoints/
 
 # Data
-data/raw/
-data/processed/*.csv
-data/external/
+data/raw/*
+data/processed/*
+data/external/*
+data/interim/*
+
 *.sqlite
 *.db
 
